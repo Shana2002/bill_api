@@ -43,7 +43,7 @@ class Template:
         self.unit_col = Template.template_data[self.id]["unit_col"]
         self.price_col = Template.template_data[self.id]["price_col"]
         self.no_col_show = Template.template_data[self.id]["no_col_show"]
-        self.no_col = Template.template_data[self.id]["no_col"]
+        self.no_col = Template.template_data[self.id].get("no_col",0)
         self.total = Template.template_data[self.id]["total"]
         self.discount = Template.template_data[self.id]["discount"]
         self.sub_totla = Template.template_data[self.id]["sub_totla"]
