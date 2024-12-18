@@ -1,1 +1,5 @@
 send_message.py
+.env
+*.pdf
+*.xlsx
+*.pyc

@@ -61,7 +61,7 @@ def generate_bill():
     new_pdf.convert_pdf()
 
 
-    send_whatsapp(file_name)
+    print(send_whatsapp(file_name))
 
     return ({
         "pdf":f"https://833e-112-135-69-141.ngrok-free.app/get/output_pdf/{file_name}.pdf",
