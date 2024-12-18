@@ -3,3 +3,4 @@ send_message.py
 *.pdf
 *.xlsx
 *.pyc
+*.json
