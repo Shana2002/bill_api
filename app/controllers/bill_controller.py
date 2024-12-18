@@ -6,6 +6,7 @@ from openpyxl import Workbook,load_workbook
 from app.models.convert_pdf_model import Convert
 import shutil
 import datetime
+from twilio.rest import Client
 
 @app.post('/generate_bill/')
 def generate_bill():
@@ -58,7 +59,27 @@ def generate_bill():
     
     new_pdf = Convert(f"{file_name}")
     new_pdf.convert_pdf()
-    print(new_pdf.file_path)
 
 
-    return ({"data":f"http://127.0.0.1:5000/assets/output_excel/{file_name}.xlsx"})
+    send_whatsapp(file_name)
+
+    return ({
+        "pdf":f"https://833e-112-135-69-141.ngrok-free.app/get/output_pdf/{file_name}.pdf",
+        "excel":f"https://833e-112-135-69-141.ngrok-free.app/get/output_excel/{file_name}.xlsx"
+        })
+
+def send_whatsapp(file_name):
+    sid = "AC6095e11e4b041192875c8facc97f9f69"
+    authToken = "c846cd9a17651a0713a2b5b41d49e4f5"
+    client = Client(sid,authToken)
+
+    try:
+        message = client.messages.create(
+            to="whatsapp:+94712875690",
+            from_="whatsapp:+14155238886",
+            body="Hello brohh",
+            media_url=[f"https://833e-112-135-69-141.ngrok-free.app/get/output_pdf/{file_name}.pdf"]
+            )
+        return True
+    except:
+        return False
