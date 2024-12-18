@@ -5,6 +5,7 @@ from app.models.template_model import Template
 from openpyxl import Workbook,load_workbook
 from app.models.convert_pdf_model import Convert
 from app.controllers.send_message import send_whatsapp
+from app.controllers.send_email import SendMail
 import shutil
 import datetime
 
@@ -61,7 +62,9 @@ def generate_bill():
     new_pdf.convert_pdf()
 
 
-    print(send_whatsapp(file_name))
+    # print(send_whatsapp(file_name))
+    mail = SendMail(bill,file_name)
+    mail.send_email()
 
     return ({
         "pdf":f"https://833e-112-135-69-141.ngrok-free.app/get/output_pdf/{file_name}.pdf",
