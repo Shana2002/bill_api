@@ -1,6 +1,7 @@
 .env
 *.pdf
-*.xlsx
+/assets/output_excel
+/assets/output_pdf
 *.pyc
 *.json
 
