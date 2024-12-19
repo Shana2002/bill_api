@@ -10,6 +10,7 @@ import shutil
 import datetime
 import os
 from dotenv import load_dotenv
+import threading
 
 load_dotenv()
 baseurl= os.getenv("BASE_URL")
@@ -65,24 +66,39 @@ def generate_bill():
     new_pdf = Convert(f"{file_name}")
     new_pdf.convert_pdf()
 
-    whatsapp_send = False
-    if bill.is_send_whatsapp:
-        try :
-            whatsapp_send = send_whatsapp(file_name,bill)
-        except Exception as e:
-            whatsapp_send = e
+    # Start threads for sending WhatsApp and email
+    whatsapp_thread = threading.Thread(target=thred_whatsapp, args=(bill, file_name))
+    email_thread = threading.Thread(target=thred_email, args=(bill, file_name))
 
-    email_send = False
-    if bill.is_send_email:
-        try:
-            mail = SendMail(bill,file_name)
-            mail.send_email()
-            email_send = True
-        except Exception as e:
-            email_send = e
-    return ({
-        "pdf":f"{baseurl}/get/output_pdf/{file_name}.pdf",
-        "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx",
-        "whatsapp_send":f"{whatsapp_send}","email_send":f"{email_send}",
+    whatsapp_thread.start()
+    email_thread.start()
+
+    whatsapp_thread.join()
+    email_thread.join()
+    
+    return jsonify({
+            "pdf": f"{baseurl}/get/output_pdf/{file_name}.pdf",
+            "excel": f"{baseurl}/get/output_excel/{file_name}.xlsx",
+            "whatsapp_send": whatsapp_thread.is_alive(),
+            "email_send": email_thread.is_alive(),
         })
 
+def thred_whatsapp(bill, file_name):
+    if bill.is_send_whatsapp:
+        try:
+            return send_whatsapp(file_name, bill)
+        except Exception as e:
+            # Log the error
+            print(f"WhatsApp Error: {e}")
+            return False
+
+def thred_email(bill, file_name):
+    if bill.is_send_email:
+        try:
+            mail = SendMail(bill, file_name)
+            mail.send_email()
+            return True
+        except Exception as e:
+            # Log the error
+            print(f"Email Error: {e}")
+            return False
