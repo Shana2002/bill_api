@@ -15,74 +15,77 @@ load_dotenv()
 baseurl= os.getenv("BASE_URL")
 @app.post('/generate_bill/')
 def generate_bill():
-    data = request.get_json()
-    bill = BillData(data)
-    template = Template(int(bill.template))
+    try:
+        data = request.get_json()
+        bill = BillData(data)
+        template = Template(int(bill.template))
 
-    file_name  = f"{bill.invoice_num}_{bill.customer_name}"
+        file_name  = f"{bill.invoice_num}_{bill.customer_name}"
 
-    shutil.copyfile(f"assets/templates_excel/template{int(bill.template)}.xlsx", f"assets/output_excel/{file_name}.xlsx")
-    workbook = load_workbook(f"assets/output_excel/{file_name}.xlsx")
-    sheet = workbook.active
+        shutil.copyfile(f"assets/templates_excel/template{int(bill.template)}.xlsx", f"assets/output_excel/{file_name}.xlsx")
+        workbook = load_workbook(f"assets/output_excel/{file_name}.xlsx")
+        sheet = workbook.active
 
-    # Assign company details
-    sheet[template.company_name] = bill.company_name
-    sheet[template.email] = f'emai: {bill.company_email}'
-    sheet[template.contact] = f'Contact: {bill.company_contact}'
+        # Assign company details
+        sheet[template.company_name] = bill.company_name
+        sheet[template.email] = f'emai: {bill.company_email}'
+        sheet[template.contact] = f'Contact: {bill.company_contact}'
 
-    # Assign Customer Details
-    sheet[template.customer] = f'Customer: {bill.customer_name}'
-    sheet[template.cus_contact] = f'Customer conact: {bill.customer_contact}'
+        # Assign Customer Details
+        sheet[template.customer] = f'Customer: {bill.customer_name}'
+        sheet[template.cus_contact] = f'Customer conact: {bill.customer_contact}'
 
-    # Assign bill varibales
-    total = 0
-    i =0
+        # Assign bill varibales
+        total = 0
+        i =0
 
-    # Assign items
-    items = bill.items
-    start_row = template.start
+        # Assign items
+        items = bill.items
+        start_row = template.start
 
-    # check items length
-    if len(items) != 0:
-        for item in items:
-            if template.no_col_show:
-                sheet.cell(row=start_row,column=template.no_col).value = i
-            
-            sheet.cell(row=start_row,column=template.item_col).value = item["item"]
-            sheet.cell(row=start_row,column=template.price_col).value = item["price"]
-            sheet.cell(row=start_row,column=template.qty_col).value = item["qty"]
-            sheet.cell(row=start_row,column=template.price_col).value = item["price"]*item["qty"]
-            total += float(float(item["price"])*float(item["qty"]))
-            start_row += 1
+        # check items length
+        if len(items) != 0:
+            for item in items:
+                if template.no_col_show:
+                    sheet.cell(row=start_row,column=template.no_col).value = i
+                
+                sheet.cell(row=start_row,column=template.item_col).value = item["item"]
+                sheet.cell(row=start_row,column=template.price_col).value = item["price"]
+                sheet.cell(row=start_row,column=template.qty_col).value = item["qty"]
+                sheet.cell(row=start_row,column=template.price_col).value = item["price"]*item["qty"]
+                total += float(float(item["price"])*float(item["qty"]))
+                start_row += 1
 
 
-    sheet[template.total] = total
-    sheet[template.discount]= bill.discount
-    sheet[template.sub_totla]= total-(total*float(bill.discount)/100)
-    # save excel
-    workbook.save(f"assets/output_excel/{file_name}.xlsx")
-    
-    new_pdf = Convert(f"{file_name}")
-    new_pdf.convert_pdf()
+        sheet[template.total] = total
+        sheet[template.discount]= bill.discount
+        sheet[template.sub_totla]= total-(total*float(bill.discount)/100)
+        # save excel
+        workbook.save(f"assets/output_excel/{file_name}.xlsx")
+        
+        new_pdf = Convert(f"{file_name}")
+        new_pdf.convert_pdf()
 
-    whatsapp_send = False
-    if bill.is_send_whatsapp:
-        try :
-            whatsapp_send = send_whatsapp(file_name,bill)
-        except Exception as e:
-            whatsapp_send = e
+        whatsapp_send = False
+        if bill.is_send_whatsapp:
+            try :
+                whatsapp_send = send_whatsapp(file_name,bill)
+            except Exception as e:
+                whatsapp_send = e
 
-    email_send = False
-    if bill.is_send_email:
-        try:
-            mail = SendMail(bill,file_name)
-            mail.send_email()
-            email_send = True
-        except Exception as e:
-            email_send = e
-    return ({
-        "pdf":f"{baseurl}/get/output_pdf/{file_name}.pdf",
-        "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx",
-        "whatsapp_send":f"{whatsapp_send}","email_send":f"{email_send}",
-        })
+        email_send = False
+        if bill.is_send_email:
+            try:
+                mail = SendMail(bill,file_name)
+                mail.send_email()
+                email_send = True
+            except Exception as e:
+                email_send = e
+        return ({
+            "pdf":f"{baseurl}/get/output_pdf/{file_name}.pdf",
+            "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx",
+            "whatsapp_send":f"{whatsapp_send}","email_send":f"{email_send}",
+            })
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
 
