@@ -1,10 +1,13 @@
 class Template:
     template_data={
     1:{"company_name":"A1",
+         "invocice":"F6",
+         "date":"H6",
          "email":"A3",
          "contact":"A4",
          "customer":"A7",
          "cus_contact":"A8",
+         "cus_email":"A10",
          "start":10,
          "item_col":1,
          "qty_col":5,
@@ -16,11 +19,14 @@ class Template:
          "discount":"F29",
          "sub_totla":"F30"},
     2:{"company_name":"A1",
-         "email":"A5",
-         "contact":"A4",
-         "customer":"A8",
-         "cus_contact":"A9",
-         "start":16,
+         "invocice":"F6",
+         "date":"H6",
+         "email":"A3",
+         "contact":"A2",
+         "customer":"A6",
+         "cus_contact":"A7",
+         "cus_email":"A8",
+         "start":11,
          "item_col":1,
          "qty_col":6,
          "unit_col":7,
@@ -28,15 +34,18 @@ class Template:
          "no_col_show":False,
          "total":"H31",
          "discount":"H32",
-         "sub_totla":"H34"}
+         "sub_totla":"H33"}
 }
     def __init__(self,template_id):
         self.id = template_id
+        self.date = Template.template_data[self.id]["date"]
+        self.invoice = Template.template_data[self.id]["invocice"]
         self.company_name = Template.template_data[self.id]["company_name"]
         self.email = Template.template_data[self.id]["email"]
         self.contact = Template.template_data[self.id]["contact"]
         self.customer = Template.template_data[self.id]["customer"]
         self.cus_contact = Template.template_data[self.id]["cus_contact"]
+        self.cus_email = Template.template_data[self.id]["cus_email"]
         self.start = Template.template_data[self.id]["start"]
         self.item_col = Template.template_data[self.id]["item_col"]
         self.qty_col = Template.template_data[self.id]["qty_col"]

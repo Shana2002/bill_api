@@ -34,6 +34,11 @@ def generate_bill():
         # Assign Customer Details
         sheet[template.customer] = f'Customer: {bill.customer_name}'
         sheet[template.cus_contact] = f'Customer conact: {bill.customer_contact}'
+        sheet[template.cus_email] = f"email: {bill.customer_email}"
+
+        # bill details
+        sheet[template.date] = datetime.datetime.now().date()
+        sheet[template.invoice] = bill.invoice_num
 
         # Assign bill varibales
         total = 0
@@ -50,15 +55,15 @@ def generate_bill():
                     sheet.cell(row=start_row,column=template.no_col).value = i
                 
                 sheet.cell(row=start_row,column=template.item_col).value = item["item"]
-                sheet.cell(row=start_row,column=template.price_col).value = item["price"]
+                sheet.cell(row=start_row,column=template.unit_col).value = item["price"]
                 sheet.cell(row=start_row,column=template.qty_col).value = item["qty"]
-                sheet.cell(row=start_row,column=template.price_col).value = item["price"]*item["qty"]
+                sheet.cell(row=start_row,column=template.price_col).value = float(float(item["price"])*float(item["qty"]))
                 total += float(float(item["price"])*float(item["qty"]))
                 start_row += 1
 
 
         sheet[template.total] = total
-        sheet[template.discount]= bill.discount
+        sheet[template.discount]= f"{bill.discount}%"
         sheet[template.sub_totla]= total-(total*float(bill.discount)/100)
         # save excel
         workbook.save(f"assets/output_excel/{file_name}.xlsx")
@@ -67,20 +72,20 @@ def generate_bill():
         new_pdf.convert_pdf()
 
         whatsapp_send = False
-        if bill.is_send_whatsapp:
-            try :
-                whatsapp_send = send_whatsapp(file_name,bill)
-            except Exception as e:
-                whatsapp_send = e
+        # if bill.is_send_whatsapp:
+        #     try :
+        #         whatsapp_send = send_whatsapp(file_name,bill)
+        #     except Exception as e:
+        #         whatsapp_send = e
 
         email_send = False
-        if bill.is_send_email:
-            try:
-                mail = SendMail(bill,file_name)
-                mail.send_email()
-                email_send = True
-            except Exception as e:
-                email_send = e
+        # if bill.is_send_email:
+        #     try:
+        #         mail = SendMail(bill,file_name)
+        #         mail.send_email()
+        #         email_send = True
+        #     except Exception as e:
+        #         email_send = e
         return ({
             "pdf":f"{baseurl}/get/output_pdf/{file_name}.pdf",
             "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx",
