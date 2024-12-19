@@ -47,7 +47,7 @@ class BillData:
                     self.is_send_whatsapp = True
 
 
-        #whats app sent
+        # mail send
         self.is_send_email = False
         mail_data = data.get("sentemail")
         mail_body = (

@@ -18,9 +18,9 @@ CREDENTIALS_PATH = f"{os.getcwd()}/assets/api_auth/credentials.json"
 class SendMail:
     def __init__(self, data, file_name):
         # Initialize email details
-        self.subject = f"Invoice from {data.company_name}"
-        self.body = f"{datetime.datetime.now().date()} invoice from {data.company_name}"
-        self.recipient_email = data.customer_email
+        self.subject = data.mail_subject
+        self.body = data.mail_body
+        self.recipient_email = data.reciver_mail
         self.file_name = file_name
 
     def gmail_api_authenticate(self):

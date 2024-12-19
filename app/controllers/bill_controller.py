@@ -1,4 +1,4 @@
-from flask import request
+from flask import request,jsonify
 from app.init import app
 from app.models.bill_data_model import BillData 
 from app.models.template_model import Template
@@ -11,7 +11,7 @@ import datetime
 import os
 from dotenv import load_dotenv
 
-load_dotenv
+load_dotenv()
 baseurl= os.getenv("BASE_URL")
 @app.post('/generate_bill/')
 def generate_bill():
@@ -65,13 +65,24 @@ def generate_bill():
     new_pdf = Convert(f"{file_name}")
     new_pdf.convert_pdf()
 
+    whatsapp_send = False
+    if bill.is_send_whatsapp:
+        try :
+            whatsapp_send = send_whatsapp(file_name,bill)
+        except Exception as e:
+            whatsapp_send = e
 
-    print(send_whatsapp(file_name)) 
-    mail = SendMail(bill,file_name)
-    mail.send_email()
-
+    email_send = False
+    if bill.is_send_email:
+        try:
+            mail = SendMail(bill,file_name)
+            mail.send_email()
+            email_send = True
+        except Exception as e:
+            email_send = e
     return ({
         "pdf":f"{baseurl}/get/output_pdf/{file_name}.pdf",
-        "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx"
+        "excel":f"{baseurl}/get/output_excel/{file_name}.xlsx",
+        "whatsapp_send":f"{whatsapp_send}","email_send":f"{email_send}",
         })
 
