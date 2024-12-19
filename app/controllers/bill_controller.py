@@ -19,7 +19,7 @@ def generate_bill():
     bill = BillData(data)
     template = Template(int(bill.template))
 
-    file_name  = f"{str(int(datetime.datetime.now().timestamp()))}_{bill.customer_name}"
+    file_name  = f"{bill.invoice_num}_{bill.customer_name}"
 
     shutil.copyfile(f"assets/templates_excel/template{int(bill.template)}.xlsx", f"assets/output_excel/{file_name}.xlsx")
     workbook = load_workbook(f"assets/output_excel/{file_name}.xlsx")
@@ -66,7 +66,7 @@ def generate_bill():
     new_pdf.convert_pdf()
 
 
-    print(send_whatsapp(file_name))
+    print(send_whatsapp(file_name)) 
     mail = SendMail(bill,file_name)
     mail.send_email()
 
